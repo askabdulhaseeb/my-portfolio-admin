@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:portfolio_admin/database/auth_methods.dart';
+import 'package:portfolio_admin/screens/main_screen.dart';
 import 'package:portfolio_admin/screens/widgets/customiz_text_form_field.dart';
+import 'package:portfolio_admin/screens/widgets/show_loading_dislog.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/LoginScreen';
@@ -23,9 +27,27 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CustomizeTextFormField(hint: 'Email', controller: _email),
-            CustomizeTextFormField(hint: 'Password', controller: _password),
+            CustomizeTextFormField(
+              hint: 'Password',
+              controller: _password,
+              isPassword: true,
+            ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                showLoadingDialog(context);
+                final User? user =
+                    await AuthMethods().loginWithEmailAndPassword(
+                  _email.text.trim(),
+                  _password.text.trim(),
+                );
+                Navigator.of(context).pop();
+                if (user != null) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    MainScreen.routeName,
+                    (route) => false,
+                  );
+                } else {}
+              },
               child: Text('Login'),
             ),
             const SizedBox(height: 100),
