@@ -1,13 +1,9 @@
-import 'dart:html';
-
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
-import 'package:image_picker_web/image_picker_web.dart';
+import 'package:portfolio_admin/screens/widgets/customiz_toast.dart';
 import 'package:portfolio_admin/database/developer_firebase_methods.dart';
-import 'package:portfolio_admin/screens/widgets/show_loading_dislog.dart';
-import 'package:uuid/uuid.dart';
-
-import 'package:portfolio_admin/models/developer.dart';
 import 'package:portfolio_admin/screens/widgets/customiz_text_form_field.dart';
+import 'package:portfolio_admin/screens/widgets/show_loading_dislog.dart';
 
 class AddDeveloper extends StatefulWidget {
   static const routeName = '/AddDeveloper';
@@ -18,8 +14,7 @@ class AddDeveloper extends StatefulWidget {
 
 class _AddDeveloperState extends State<AddDeveloper> {
   final TextEditingController _name = TextEditingController();
-  File? pickedImage;
-  String _imageInfo = '';
+  html.File? pickedFile;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,24 +34,22 @@ class _AddDeveloperState extends State<AddDeveloper> {
             child: Container(
               height: 100,
               width: 100,
-              child: (pickedImage == null) ? Icon(Icons.image) : Container(),
+              child: Icon(Icons.image),
             ),
           ),
           OutlinedButton(
             onPressed: () async {
-              showLoadingDialog(context);
-              String uid = DateTime.now().microsecondsSinceEpoch.toString();
-              Developer developer = Developer(
-                uid: uid,
-                name: _name.text.trim(),
-                imageURL: '',
-              );
-              await DeveloperFirebaseMethods().addDeveloper(
-                uid: uid,
-                info: developer.toMap(),
-              );
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
+              if (_name.text.trim().isNotEmpty && pickedFile != null) {
+                showLoadingDialog(context);
+                await DeveloperFirebaseMethods().addDeveloper(
+                  name: _name.text.trim(),
+                  file: pickedFile!,
+                );
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              } else {
+                errorToast(message: 'Write Name or Select Image');
+              }
             },
             child: Text('Save'),
           ),
@@ -66,20 +59,19 @@ class _AddDeveloperState extends State<AddDeveloper> {
   }
 
   _selectImage() async {
-    File infos = await ImagePickerWeb.getImage(outputType: ImageType.file);
-    setState(() {
-      pickedImage = infos;
-      _imageInfo = 'Name: ${infos.name}\nRelative Path: ${infos.relativePath}';
-      // DeveloperFirebaseMethods().storeImageToFirestore(infos);
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement()
+      ..accept = 'image/*';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((event) {
+      final html.File file = uploadInput.files!.first;
+      final reader = html.FileReader();
+      reader.readAsDataUrl(file);
+      reader.onLoadEnd.listen((event) {
+        setState(() {
+          pickedFile = file;
+        });
+      });
     });
-
-    // Image? fromPicker =
-    //     await ImagePickerWeb.getImage(outputType: ImageType.widget);
-
-    // if (fromPicker != null) {
-    //   setState(() {
-    //     pickedImage = fromPicker;
-    //   });
-    // }
   }
 }
