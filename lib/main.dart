@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:portfolio_admin/screens/login_screen/login_screen.dart';
-import 'package:portfolio_admin/screens/main_screen.dart';
-import 'package:portfolio_admin/screens/pages/add_developer/add_developer.dart';
-import 'package:portfolio_admin/screens/pages/add_project/add_project.dart';
-import 'package:portfolio_admin/screens/pages/add_project_type/add_project_type.dart';
+import 'screens/login_screen/login_screen.dart';
+import 'screens/main_screen.dart';
+import 'screens/pages/add_developer/add_developer.dart';
+import 'screens/pages/add_project/add_project.dart';
+import 'screens/pages/add_project_type/add_project_type.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainScreen(),
+      home: AddProject(),
       routes: {
         LoginScreen.routeName: (ctx) => LoginScreen(),
         MainScreen.routeName: (ctx) => MainScreen(),
